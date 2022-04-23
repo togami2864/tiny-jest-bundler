@@ -8,6 +8,7 @@ import chalk from "chalk";
 import yargs from "yargs";
 import fs from "fs";
 import { Worker } from "jest-worker";
+import { minify } from "terser";
 
 const options = yargs(process.argv).argv;
 const entryPoint = resolve(process.cwd(), options.entryPoint);
@@ -111,10 +112,12 @@ const output = [
   "requireModule(0);",
 ].join("\n");
 
-console.log(output);
+const code = options.minify
+  ? await minify(output, { sourceMap: true }).then((res) => res.code)
+  : output;
 
 if (options.output) {
-  fs.writeFileSync(options.output, output, "utf8");
+  fs.writeFileSync(options.output, code, "utf8");
   if (options.html) {
     const html = fs.readFileSync(options.html, "utf-8");
     const bodyRex = /<\/body>/i;

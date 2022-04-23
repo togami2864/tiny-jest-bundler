@@ -1435,7 +1435,7 @@
   "resolved" "https://registry.npmjs.org/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz"
   "version" "1.0.0"
 
-"terser@^5.12.0":
+"terser@^5.12.0", "terser@^5.12.1":
   "integrity" "sha512-NXbs+7nisos5E+yXwAD+y7zrcTkMqb0dEJxIGtSKPdCBzopf7ni4odPul2aechpV7EXNvOudYOX2bb5tln1jbQ=="
   "resolved" "https://registry.npmjs.org/terser/-/terser-5.12.1.tgz"
   "version" "5.12.1"
