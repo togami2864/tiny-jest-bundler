@@ -115,6 +115,15 @@ console.log(output);
 
 if (options.output) {
   fs.writeFileSync(options.output, output, "utf8");
+  if (options.html) {
+    const html = fs.readFileSync(options.html, "utf-8");
+    const bodyRex = /<\/body>/i;
+    const injectedHtml = html.replace(
+      bodyRex,
+      `<script src="${options.output}">` + "</script>" + "\n</body>"
+    );
+    fs.writeFileSync("output.html", injectedHtml, "utf-8");
+  }
 }
 
 worker.end();

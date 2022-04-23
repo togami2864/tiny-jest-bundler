@@ -1,4 +1,5 @@
 - [x] bundling
+- [x] inject html
 - [ ] minify
 - [ ] sourcemap
 - [ ] dev mode

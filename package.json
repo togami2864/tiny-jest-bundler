@@ -7,6 +7,7 @@
     "@babel/core": "^7.17.9",
     "@babel/plugin-transform-modules-commonjs": "^7.17.9",
     "chalk": "^5.0.1",
+    "html-minifier-terser": "^7.0.0-alpha.2",
     "jest-haste-map": "^27.5.1",
     "jest-resolve": "^27.5.1",
     "jest-resolve-dependencies": "^27.5.1",
