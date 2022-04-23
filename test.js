@@ -22,21 +22,51 @@ const requireModule = (name) => {
 };
 
 define(5, function(module, exports, require) {
-module.exports = 'tomato';
-});
+"use strict";
+
+module.exports = 'tomato';});
 define(4, function(module, exports, require) {
-module.exports = 'melon';
-});
+"use strict";
+
+module.exports = 'melon';});
 define(3, function(module, exports, require) {
-module.exports = 'kiwi ' + require(4) + ' ' + require(5);
-});
+"use strict";
+
+module.exports = 'kiwi ' + require(4) + ' ' + require(5);});
 define(2, function(module, exports, require) {
-module.exports = 'banana ' + require(3);
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
 });
+exports.default = void 0;
+
+var _default = "banana " + require(3);
+
+exports.default = _default;});
 define(1, function(module, exports, require) {
-module.exports = 'apple ' + require(2) + ' ' + require(3);
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
 });
+exports.default = void 0;
+
+var _banana = _interopRequireDefault(require(2));
+
+var _kiwi = _interopRequireDefault(require(3));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _default = "apple " + _banana.default + " " + _kiwi.default;
+
+exports.default = _default;});
 define(0, function(module, exports, require) {
-console.log(require(1));
-});
+"use strict";
+
+var _apple = _interopRequireDefault(require(1));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+console.log(_apple.default);});
 requireModule(0);
