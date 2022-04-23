@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import chalk from "chalk";
 import yargs from "yargs";
 import fs from "fs";
+import { transformSync } from "@babel/core";
 
 const options = yargs(process.argv).argv;
 const entryPoint = resolve(process.cwd(), options.entryPoint);
@@ -77,24 +78,34 @@ const wrapModule = (id, code) =>
   `define(${id}, function(module, exports, require) {\n${code}});`;
 
 console.log(chalk.bold(`❯ Serializing bundle`));
-const output = [];
-for (const [module, metadata] of Array.from(modules).reverse()) {
-  let { id, code } = metadata;
-  for (const [dependencyName, dependencyPath] of metadata.dependencyMap) {
-    const dependency = modules.get(dependencyPath);
-    code = code.replace(
-      new RegExp(
-        `require\\(('|")${dependencyName.replace(/[\/.]/g, "\\$&")}\\1\\)`
-      ),
-      `require(${dependency.id})`
-    );
-  }
-  output.push(wrapModule(id, code));
-}
+const results = await Promise.all(
+  Array.from(modules)
+    .reverse()
+    .map(async ([module, metadata]) => {
+      let { id, code } = metadata;
+      code = transformSync(code, {
+        plugins: ["@babel/plugin-transform-modules-commonjs"],
+      }).code;
+      for (const [dependencyName, dependencyPath] of metadata.dependencyMap) {
+        const dependency = modules.get(dependencyPath);
+        code = code.replace(
+          new RegExp(
+            `require\\(('|")${dependencyName.replace(/[\/.]/g, "\\$&")}\\1\\)`
+          ),
+          `require(${dependency.id})`
+        );
+      }
+      return wrapModule(id, code);
+    })
+);
 
-output.unshift(fs.readFileSync("./require.js", "utf8"));
-output.push(["requireModule(0);"]);
-console.log(output.join("\n"));
+const output = [
+  fs.readFileSync("./require.js", "utf8"),
+  ...results,
+  "requireModule(0);",
+].join("\n");
+
+console.log(output);
 
 if (options.output) {
   fs.writeFileSync(options.output, output.join("\n", "utf8"));

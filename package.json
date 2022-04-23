@@ -4,6 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@babel/core": "^7.17.9",
+    "@babel/plugin-transform-modules-commonjs": "^7.17.9",
     "chalk": "^5.0.1",
     "jest-haste-map": "^27.5.1",
     "jest-resolve": "^27.5.1",
