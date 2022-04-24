@@ -1,6 +1,6 @@
 - [x] bundling
 - [x] inject html
-- [ ] minify
+- [x] minify
 - [ ] sourcemap
 - [ ] dev mode
 - [ ] watch mode
