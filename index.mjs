@@ -9,7 +9,7 @@ import yargs from "yargs";
 import fs from "fs";
 import { Worker } from "jest-worker";
 import { minify } from "terser";
-import { read, write } from "./cache.mjs";
+import { read, write } from "./lib/cache.mjs";
 const options = yargs(process.argv).argv;
 const entryPoint = resolve(process.cwd(), options.entryPoint);
 
@@ -22,11 +22,12 @@ const hasteMap = new JestHasteMap.default({
   name: "jest-bundler",
   platforms: [],
   rootDir: root,
-  roots: [root, "node_modules"],
+  roots: [root, "lib", "node_modules"],
 });
 
 const { hasteFS, moduleMap } = await hasteMap.build();
 if (!hasteFS.exists(entryPoint)) {
+  console.log("entry:", entryPoint);
   throw new Error(
     "`--entry-point` does not exist. Please provide a path to a valid file."
   );
@@ -77,7 +78,7 @@ const wrapModule = (id, code) =>
 console.log(chalk.bold(`❯ Serializing bundle`));
 
 const worker = new Worker(
-  join(dirname(fileURLToPath(import.meta.url)), "worker.js"),
+  join(dirname(fileURLToPath(import.meta.url)), "./lib/worker.js"),
   {
     enableWorkerThreads: true,
   }
@@ -87,7 +88,7 @@ const checkCache = async (filepath, metadata) => {
   const CACHE_DIR = "./node_modules/.cache/jest-bundler";
   let { id } = metadata;
   try {
-    const { code } = await read(filepath, CACHE_DIR);
+    const code = await read(filepath, CACHE_DIR);
     return { id, code };
   } catch {}
   const { code } = await worker.transformFile(metadata.code);
@@ -115,7 +116,7 @@ const results = await Promise.all(
 );
 
 const output = [
-  fs.readFileSync("./require.js", "utf8"),
+  fs.readFileSync("./lib/require.js", "utf8"),
   ...results,
   "requireModule(0);",
 ].join("\n");

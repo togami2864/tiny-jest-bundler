@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "test": "vitest",
-    "bundle": "node index.mjs --entry-point product/entry-point.js --output test.js --html index.html --minify=true",
-    "bench": "node index.mjs --entry-point product/entry.js --output __test__/bench/transformed.js"
+    "bundle": "node index.mjs --entry-point ./product/entry-point.js --output ./dist/test.js --html index.html --minify=true",
+    "bench": "node index.mjs --entry-point ./product/entry.js --output ./dist/transformed.js"
   },
   "dependencies": {
     "@babel/core": "^7.17.9",
