@@ -9,7 +9,7 @@ import yargs from "yargs";
 import fs from "fs";
 import { Worker } from "jest-worker";
 import { minify } from "terser";
-
+import { read, write } from "./cache.mjs";
 const options = yargs(process.argv).argv;
 const entryPoint = resolve(process.cwd(), options.entryPoint);
 
@@ -83,12 +83,24 @@ const worker = new Worker(
   }
 );
 
+const checkCache = async (filepath, metadata) => {
+  const CACHE_DIR = "./node_modules/.cache/jest-bundler";
+  let { id } = metadata;
+  try {
+    const { code } = await read(filepath, CACHE_DIR);
+    return { id, code };
+  } catch {}
+  const { code } = await worker.transformFile(metadata.code);
+  await write(filepath, code, CACHE_DIR);
+  return { id, code };
+};
+
 const results = await Promise.all(
   Array.from(modules)
     .reverse()
     .map(async ([module, metadata]) => {
-      let { id, code } = metadata;
-      ({ code } = await worker.transformFile(code));
+      let { id, code } = await checkCache(module, metadata);
+
       for (const [dependencyName, dependencyPath] of metadata.dependencyMap) {
         const dependency = modules.get(dependencyPath);
         code = code.replace(

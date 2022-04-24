@@ -1,6 +1,6 @@
 const { transformSync } = require("@babel/core");
 
-exports.transformFile = function (code) {
+exports.transformFile = function (code, filepath) {
   const transformResult = { code: "" };
   try {
     transformResult.code = transformSync(code, {
