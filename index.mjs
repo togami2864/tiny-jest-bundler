@@ -13,15 +13,16 @@ import { minify } from "terser";
 const options = yargs(process.argv).argv;
 const entryPoint = resolve(process.cwd(), options.entryPoint);
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "product");
-
+const root = join(dirname(fileURLToPath(import.meta.url)));
+console.log(root);
+const start = performance.now();
 const hasteMap = new JestHasteMap.default({
   extensions: ["js"],
   maxWorkers: cpus.length,
   name: "jest-bundler",
   platforms: [],
   rootDir: root,
-  roots: [root],
+  roots: [root, "node_modules"],
 });
 
 const { hasteFS, moduleMap } = await hasteMap.build();
@@ -31,8 +32,6 @@ if (!hasteFS.exists(entryPoint)) {
   );
 }
 console.log(chalk.bold(`❯ Building ${chalk.blue(options.entryPoint)}`));
-console.log(hasteFS.getAllFiles());
-console.log(hasteFS.getDependencies(entryPoint));
 
 const resolver = new Resolver.default(moduleMap, {
   extensions: [".js"],
@@ -41,8 +40,6 @@ const resolver = new Resolver.default(moduleMap, {
 });
 
 const dependencyResolver = new DependencyResolver(resolver, hasteFS);
-
-console.log(dependencyResolver.resolve(entryPoint));
 
 const seen = new Set();
 const modules = new Map();
@@ -73,7 +70,6 @@ while (queue.length) {
 }
 
 console.log(chalk.bold(`❯ Found ${chalk.blue(seen.size)} files`));
-console.log(Array.from(seen));
 
 const wrapModule = (id, code) =>
   `define(${id}, function(module, exports, require) {\n${code}});`;
@@ -128,5 +124,8 @@ if (options.output) {
     fs.writeFileSync("output.html", injectedHtml, "utf-8");
   }
 }
-
+const end = performance.now();
+console.log(
+  chalk.bold(`jest-bundler compiled in ${end - start} milliseconds.`)
+);
 worker.end();

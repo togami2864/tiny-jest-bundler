@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "scripts": {"test": "vitest"},
+  "scripts": {
+    "test": "vitest",
+    "bundle": "node index.mjs --entry-point product/entry-point.js --output test.js --html index.html --minify=true",
+    "bench": "node index.mjs --entry-point product/entry.js --output __test__/bench/transformed.js"
+  },
   "dependencies": {
     "@babel/core": "^7.17.9",
     "@babel/plugin-transform-modules-commonjs": "^7.17.9",
@@ -17,6 +21,8 @@
     "yargs": "^17.4.1"
   },
   "devDependencies": {
+    "lodash-es": "^4.17.21",
+    "three": "^0.139.2",
     "vitest": "^0.9.4"
   }
 }
