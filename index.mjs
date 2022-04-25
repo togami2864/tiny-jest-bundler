@@ -7,9 +7,11 @@ import { fileURLToPath } from "url";
 import chalk from "chalk";
 import yargs from "yargs";
 import fs from "fs";
+import path from "path";
 import { Worker } from "jest-worker";
 import { minify } from "terser";
-import { read, write } from "./lib/cache.mjs";
+import { read, write, cacheFileName } from "./lib/cache.mjs";
+
 const options = yargs(process.argv).argv;
 const entryPoint = resolve(process.cwd(), options.entryPoint);
 
@@ -83,24 +85,30 @@ const worker = new Worker(
     enableWorkerThreads: true,
   }
 );
+const CACHE_DIR = "./node_modules/.cache/jest-bundler";
 
-const checkCache = async (filepath, metadata) => {
-  const CACHE_DIR = "./node_modules/.cache/jest-bundler";
-  let { id } = metadata;
+const checkCache = async (filename, metadata) => {
+  const filepath = path.join(CACHE_DIR, filename);
   try {
-    const code = await read(filepath, CACHE_DIR);
-    return { id, code };
+    const code = await read(filepath, false);
+    return { code };
   } catch {}
   const { code } = await worker.transformFile(metadata.code);
-  await write(filepath, code, CACHE_DIR);
-  return { id, code };
+  if (!fs.existsSync(CACHE_DIR)) {
+    fs.mkdirSync(CACHE_DIR, { recursive: true });
+  }
+  await write(filepath, code, false);
+  return { code };
 };
 
 const results = await Promise.all(
   Array.from(modules)
     .reverse()
     .map(async ([module, metadata]) => {
-      let { id, code } = await checkCache(module, metadata);
+      // トランスパイル前のコードをもとにhashを計算
+      const filename = cacheFileName(metadata.code);
+      let { id } = metadata.id;
+      let { code } = await checkCache(filename, metadata);
 
       for (const [dependencyName, dependencyPath] of metadata.dependencyMap) {
         const dependency = modules.get(dependencyPath);

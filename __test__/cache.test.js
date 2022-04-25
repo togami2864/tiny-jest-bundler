@@ -12,30 +12,27 @@ describe("cache", () => {
   });
   describe("write", () => {
     it("should write a cache file correctly", async () => {
-      const filePath = path.join(CACHE_DIR, "sample");
+      const filePath = path.join(CACHE_DIR, "sample.json");
       await write(
         filePath,
         {
           code: 'module.exports = "hello";',
         },
-        CACHE_DIR,
         false
       );
-      expect(fs.existsSync(filePath + ".json")).toBe(true);
+      expect(fs.existsSync(filePath)).toBe(true);
     });
     it("should compress", async () => {
-      const filename = "sample.json.gz";
-      const filePath = path.join(CACHE_DIR, "sample");
+      const filename = "sample.json";
+      const filePath = path.join(CACHE_DIR, filename);
       await write(
         filePath,
         {
           code: 'module.exports = "hello";',
         },
-        CACHE_DIR,
         true
       );
-      console.log(path.join(filePath, filename));
-      expect(fs.existsSync(filePath + ".json" + ".gz")).toBe(true);
+      expect(fs.existsSync(filePath)).toBe(true);
     });
   });
   describe("read", () => {
@@ -45,7 +42,7 @@ describe("cache", () => {
         filePath + ".json",
         JSON.stringify({ code: 'module.exports = "hello";' })
       );
-      const result = await read(filePath, CACHE_DIR);
+      const result = await read(filePath, false);
       expect(result).toMatchObject(
         expect.objectContaining({
           code: expect.any(String),
