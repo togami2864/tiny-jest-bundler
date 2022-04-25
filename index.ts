@@ -18,6 +18,7 @@ const entryPoint = resolve(process.cwd(), options.entryPoint);
 const root = join(dirname(fileURLToPath(import.meta.url)));
 console.log(root);
 const start = performance.now();
+// @ts-ignore
 const hasteMap = new JestHasteMap.default({
   extensions: ["js"],
   maxWorkers: cpus.length,
@@ -36,12 +37,14 @@ if (!hasteFS.exists(entryPoint)) {
 }
 console.log(chalk.bold(`❯ Building ${chalk.blue(options.entryPoint)}`));
 
+// @ts-ignore
 const resolver = new Resolver.default(moduleMap, {
   extensions: [".js"],
   hasCoreModules: false,
   rootDir: root,
 });
 
+// @ts-ignore
 const dependencyResolver = new DependencyResolver(resolver, hasteFS);
 
 const seen = new Set();
