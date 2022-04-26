@@ -1,0 +1,6 @@
+package.lock.json
+tsconfig.json
+__test__
+playground
+*.html
+src

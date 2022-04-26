@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import JestHasteMap from "jest-haste-map";
 import Resolver from "jest-resolve";
 import { DependencyResolver } from "jest-resolve-dependencies";
@@ -7,16 +8,30 @@ import { fileURLToPath } from "url";
 import chalk from "chalk";
 import yargs from "yargs";
 import fs from "fs";
-import path from "path";
 import { Worker } from "jest-worker";
 import { minify } from "terser";
-import { read, write, cacheFileName } from "./lib/cache.mjs";
+import { read, write, cacheFileName } from "./cache.mjs";
 
-const options = yargs(process.argv).argv;
+const options = yargs(process.argv).options({
+  entryPoint: {
+    type: "string",
+  },
+  output: {
+    type: "string",
+  },
+  html: {
+    type: "string",
+  },
+  minify: {
+    type: "boolean",
+    default: true,
+  },
+}).argv;
+
 const entryPoint = resolve(process.cwd(), options.entryPoint);
 
-const root = join(dirname(fileURLToPath(import.meta.url)));
-console.log(root);
+const root = process.cwd();
+console.log("root", root);
 const start = performance.now();
 // @ts-ignore
 const hasteMap = new JestHasteMap.default({
@@ -25,12 +40,13 @@ const hasteMap = new JestHasteMap.default({
   name: "jest-bundler",
   platforms: [],
   rootDir: root,
-  roots: [root, "lib", "node_modules"],
+  // monkey patch
+  roots: [root, "node_modules"],
 });
 
 const { hasteFS, moduleMap } = await hasteMap.build();
 if (!hasteFS.exists(entryPoint)) {
-  console.log("entry:", entryPoint);
+  console.log(chalk.bold("entry:", entryPoint));
   throw new Error(
     "`--entry-point` does not exist. Please provide a path to a valid file."
   );
@@ -83,7 +99,7 @@ const wrapModule = (id, code) =>
 console.log(chalk.bold(`❯ Serializing bundle`));
 
 const worker = new Worker(
-  join(dirname(fileURLToPath(import.meta.url)), "./lib/worker.js"),
+  join(dirname(fileURLToPath(import.meta.url)), "./worker.cjs"),
   {
     enableWorkerThreads: true,
   }
@@ -91,7 +107,7 @@ const worker = new Worker(
 const CACHE_DIR = "./node_modules/.cache/jest-bundler";
 
 const checkCache = async (filename, metadata) => {
-  const filepath = path.join(CACHE_DIR, filename);
+  const filepath = join(CACHE_DIR, filename);
   try {
     const code = await read(filepath, false);
     return { code };
@@ -125,9 +141,11 @@ const results = await Promise.all(
       return wrapModule(id, code);
     })
 );
-
 const output = [
-  fs.readFileSync("./lib/require.js", "utf8"),
+  fs.readFileSync(
+    join(dirname(fileURLToPath(import.meta.url)), "./require.cjs"),
+    "utf8"
+  ),
   ...results,
   "requireModule(0);",
 ].join("\n");

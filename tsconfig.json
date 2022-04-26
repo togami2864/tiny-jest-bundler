@@ -2,11 +2,13 @@
   "compilerOptions": {
     "allowJs": true,
     "module": "esnext",
-    "outDir": "./dist",
-    "target": "ES2020",
+    "outDir": "dist",
+    "rootDir": "src",
+    "target": "esnext",
     "moduleResolution": "node",
+    "types": ["node"],
     "esModuleInterop": true
   },
-  "include": ["./index.ts"],
-  "exclude": ["./lib"]
+  "include": ["./src"],
+  "exclude": ["./__tests__"]
 }

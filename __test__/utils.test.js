@@ -1,5 +1,5 @@
 import { it, expect } from "vitest";
-import { cacheFileName } from "../lib/cache.mjs";
+import { cacheFileName } from "../src/cache.mjs";
 
 it("should return the hash val if content is edited", () => {
   const content = 'module.exports = "hello";';

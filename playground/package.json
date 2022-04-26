@@ -1,0 +1,21 @@
+{
+  "name": "playground",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "jest-bundle --entry-point ./entry-point.js --output ./dist/test.js --html index.html --minify=true",
+    "bench": "jest-bundle --entry-point ./entry.js --output ./dist/transformed.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest-bundler": "file:.."
+  },
+  "dependencies": {
+    "lodash-es": "^4.17.21",
+    "three": "^0.139.2"
+  }
+}

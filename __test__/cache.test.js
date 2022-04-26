@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import fs from "fs";
 import path from "path";
-import { read, write } from "../lib/cache.mjs";
+import { read, write } from "../src/cache.mjs";
 
 describe("cache", () => {
   const CACHE_DIR = path.join(process.cwd(), "__test__", ".cache");

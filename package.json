@@ -1,14 +1,16 @@
 {
   "name": "jest-bundler",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "bin": {"jest-bundle":"./dist/index.js"},
   "license": "MIT",
   "scripts": {
     "test": "vitest",
-    "bundle": "node index.mjs --entry-point ./product/entry-point.js --output ./dist/test.js --html index.html --minify=true",
-    "bench": "node index.mjs --entry-point ./product/entry.js --output ./dist/transformed.js",
+    "bundle": "node ./dist/index.js --entry-point ./product/entry-point.js --output ./dist/test.js --html index.html --minify=true",
+    "bench": "node ./dist/index.js  --entry-point ./product/entry.js --output ./dist/transformed.js",
     "tsc": "npx tsc"
   },
+  "type": "module",
   "dependencies": {
     "@babel/core": "^7.17.9",
     "@babel/plugin-transform-modules-commonjs": "^7.17.9",
@@ -28,6 +30,7 @@
     "lodash-es": "^4.17.21",
     "three": "^0.139.2",
     "typescript": "^4.6.3",
+    "vite-node": "^0.10.0",
     "vitest": "^0.9.4"
   }
 }
