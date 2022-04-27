@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "module": "esnext",
     "outDir": "dist",
     "rootDir": "src",
-    "target": "esnext",
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "types": ["node"],
-    "esModuleInterop": true
+    "target": "es2015",
+    "module": "CommonJS",
+    "lib": ["esnext"]
   },
+
   "include": ["./src"],
   "exclude": ["./__tests__"]
 }

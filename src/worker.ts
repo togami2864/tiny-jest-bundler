@@ -1,7 +1,7 @@
 const { transformSync } = require("@babel/core");
 
-exports.transformFile = function (code, filepath) {
-  const transformResult = { code: "" };
+exports.transformFile = function (code) {
+  const transformResult = { code: "", errorMessage: "" };
   try {
     transformResult.code = transformSync(code, {
       plugins: ["@babel/plugin-transform-modules-commonjs"],

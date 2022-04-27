@@ -2,21 +2,24 @@
   "name": "jest-bundler",
   "version": "1.0.0",
   "main": "./dist/index.js",
-  "bin": {"jest-bundle":"./dist/index.js"},
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "bin": {
+    "jest-bundle": "./dist/index.js"
+  },
   "license": "MIT",
   "scripts": {
     "test": "vitest",
-    "bundle": "node ./dist/index.js --entry-point ./product/entry-point.js --output ./dist/test.js --html index.html --minify=true",
-    "bench": "node ./dist/index.js  --entry-point ./product/entry.js --output ./dist/transformed.js",
-    "tsc": "npx tsc"
+    "tsc": "npx tsc -p . --watch",
+    "build:cjs": "tsc -p tsconfig.json",
+    "build:esm": "tsc -p tsconfig.esm.json"
   },
-  "type": "module",
   "dependencies": {
     "@babel/core": "^7.17.9",
     "@babel/plugin-transform-modules-commonjs": "^7.17.9",
-    "chalk": "^5.0.1",
+    "chalk": "^4.1.2",
     "html-minifier-terser": "^7.0.0-alpha.2",
-    "jest-haste-map": "^27.5.1",
+    "jest-haste-map": "^26.6.2",
     "jest-resolve": "^27.5.1",
     "jest-resolve-dependencies": "^27.5.1",
     "jest-worker": "^27.5.1",

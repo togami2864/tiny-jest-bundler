@@ -1,6 +1,6 @@
-import fs from "fs";
-import zlib from "zlib";
-import crypto from "crypto";
+import * as fs from "fs";
+import * as zlib from "zlib";
+import * as crypto from "crypto";
 import { promisify } from "util";
 
 const gzip = promisify(zlib.gzip);
