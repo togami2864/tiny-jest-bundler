@@ -4,32 +4,28 @@ import { DependencyResolver } from "jest-resolve-dependencies";
 import { cpus } from "os";
 import { join, resolve } from "path";
 import chalk from "chalk";
-import yargs from "yargs";
+import cac from "cac";
 import * as fs from "fs";
 import { Worker } from "jest-worker";
 import { minify } from "terser";
 import { read, write, cacheFileName } from "./cache.js";
 import { performance } from "node:perf_hooks";
 
-async function run() {
-  const options = yargs(process.argv).options({
-    entryPoint: {
-      type: "string",
-    },
-    output: {
-      type: "string",
-    },
-    html: {
-      type: "string",
-    },
-    minify: {
-      type: "boolean",
-      default: true,
-    },
-  }).argv;
+const cli = cac("jest-bundler");
 
+cli
+  .option("--entryPoint <path>", "entry point")
+  .option("--output <path>", "outputDir")
+  .option("--html <path>", "html template")
+  .option("--minify", "minify")
+  .help();
+
+cli.command("build").action(build);
+
+cli.parse();
+
+async function build(options) {
   const entryPoint = resolve(process.cwd(), options.entryPoint);
-
   const root = process.cwd();
   console.log("root", root);
   const start = performance.now();
@@ -166,14 +162,4 @@ async function run() {
     chalk.bold(`jest-bundler compiled in ${end - start} milliseconds.`)
   );
   worker.end();
-}
-
-export async function runProcess(): Promise<void> {
-  try {
-    await run();
-    process.exit(0);
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
 }
