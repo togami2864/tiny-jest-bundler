@@ -1,8 +1,10 @@
+import * as fs from "node:fs/promises";
+import { performance } from "node:perf_hooks";
 import chalk from "chalk";
 import cac from "cac";
-import * as fs from "node:fs/promises";
 import { minify } from "terser";
-import { performance } from "node:perf_hooks";
+import express from "express";
+
 import { createModuleMap } from "./moduleMap.js";
 import { bundle } from "./bundle.js";
 
@@ -16,6 +18,8 @@ cli
   .help();
 
 cli.command("build").action(build);
+
+cli.command("dev").action(dev);
 
 cli.parse();
 
@@ -45,4 +49,13 @@ async function build(options) {
   console.log(
     chalk.bold(`jest-bundler compiled in ${end - start} milliseconds.`)
   );
+}
+
+async function dev(options) {
+  const output = await _build(options);
+  const app = express();
+  app.get("/", (req, res) => {
+    console.log("Hello");
+  });
+  app.listen(3000, () => console.log(`server listen on http://localhost:3000`));
 }
