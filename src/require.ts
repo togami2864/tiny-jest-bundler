@@ -8,6 +8,7 @@ const requireModule = (name) => {
   if (moduleCache.has(name)) {
     return moduleCache.get(name).exports;
   }
+
   if (!modules.has(name)) {
     throw new Error(`Module ${name} does not exist.`);
   }

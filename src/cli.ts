@@ -53,9 +53,22 @@ async function build(options) {
 
 async function dev(options) {
   const output = await _build(options);
+  const html = await fs.readFile(options.html, "utf-8");
+  const bodyRex = /<\/body>/i;
+  const injectedHtml = html.replace(
+    bodyRex,
+    `<script src="${options.output}">` + "</script>" + "\n</body>"
+  );
+  const fileMap = {};
+  fileMap[options.output.replace(".", "")] = output;
+
   const app = express();
-  app.get("/", (req, res) => {
-    console.log("Hello");
+  app.use((req, res) => {
+    const request = req.path;
+    if (fileMap[request]) {
+      return res.send(fileMap[request]);
+    }
+    res.send(injectedHtml);
   });
   app.listen(3000, () => console.log(`server listen on http://localhost:3000`));
 }

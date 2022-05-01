@@ -36,7 +36,7 @@ export async function bundle(moduleMap) {
       .map(async ([module, metadata]) => {
         // トランスパイル前のコードをもとにhashを計算
         const filename = cacheFileName(metadata.code);
-        let { id } = metadata.id;
+        let id = metadata.id;
         let { code } = await checkCache(filename, metadata);
 
         for (const [dependencyName, dependencyPath] of metadata.dependencyMap) {
