@@ -10,7 +10,7 @@
   "license": "MIT",
   "scripts": {
     "test": "vitest",
-    "build:cjs": "tsc -p tsconfig.json --watch",
+    "build": "tsc -p tsconfig.json --watch",
     "build:esm": "tsc -p tsconfig.esm.json"
   },
   "dependencies": {
