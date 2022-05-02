@@ -1,5 +1,6 @@
 import * as fs from "node:fs/promises";
 import { performance } from "node:perf_hooks";
+import * as path from "node:path";
 import chalk from "chalk";
 import cac from "cac";
 import { minify } from "terser";
@@ -13,7 +14,6 @@ const cli = cac("jest-bundler");
 cli
   .option("--entryPoint <path>", "entry point")
   .option("--output <path>", "outputDir")
-  .option("--html <path>", "html template")
   .option("--minify", "minify")
   .help();
 
@@ -38,7 +38,10 @@ async function build(options) {
     : output;
 
   await fs.writeFile(options.output, code, "utf8");
-  const html = await fs.readFile(options.html, "utf-8");
+  const html = await fs.readFile(
+    path.resolve(process.cwd(), "index.html"),
+    "utf-8"
+  );
   const bodyRex = /<\/body>/i;
   const injectedHtml = html.replace(
     bodyRex,
@@ -53,7 +56,10 @@ async function build(options) {
 
 async function dev(options) {
   const output = await _build(options);
-  const html = await fs.readFile(options.html, "utf-8");
+  const html = await fs.readFile(
+    path.resolve(process.cwd(), "index.html"),
+    "utf-8"
+  );
   const bodyRex = /<\/body>/i;
   const injectedHtml = html.replace(
     bodyRex,

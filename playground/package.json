@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "jest-bundle dev --entry-point ./entry-point.js --output ./dist/test.js --html index.html",
-    "build": "jest-bundle build --entry-point ./entry-point.js --output ./dist/test.js --html index.html --minify=true",
+    "dev": "jest-bundle dev --entry-point ./entry-point.js --output ./dist/test.js",
+    "build": "jest-bundle build --entry-point ./entry-point.js --output ./dist/test.js  --minify=true",
     "bench": "jest-bundle --entry-point ./entry.js --output ./dist/transformed.js"
   },
   "keywords": [],

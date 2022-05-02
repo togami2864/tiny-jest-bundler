@@ -3,7 +3,7 @@
 - [x] minify
 - [x] cache
 - [ ] sourcemap
-- [ ] dev mode
+- [x] dev mode
 - [ ] watch mode
 - [ ] Import Maps
 - [ ] hot reload
