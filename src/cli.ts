@@ -1,6 +1,5 @@
 import * as fs from "node:fs/promises";
 import { performance } from "node:perf_hooks";
-import * as path from "node:path";
 import chalk from "chalk";
 import cac from "cac";
 import { minify } from "terser";
@@ -32,15 +31,20 @@ async function _build(options) {
 async function build(options) {
   const start = performance.now();
   const jsFile = await _build(options);
-
-  const code = options.minify
-    ? await minify(jsFile.content, { sourceMap: true }).then((res) => res.code)
-    : jsFile.content;
-
-  await fs.writeFile(jsFile.filepath, code, "utf8");
-
   const htmlFile = await createHTMLOutput(options, jsFile.filepath);
-  await fs.writeFile(htmlFile.filepath, htmlFile.content, "utf-8");
+
+  const output = [jsFile, htmlFile];
+  for (const file of output) {
+    let code;
+    if (options.minify) {
+      code = await minify(jsFile.content, { sourceMap: true }).then(
+        (res) => res.code
+      );
+    } else {
+      code = file.content;
+    }
+    await fs.writeFile(file.filepath, code, "utf8");
+  }
   const end = performance.now();
   console.log(
     chalk.bold(`jest-bundler compiled in ${end - start} milliseconds.`)

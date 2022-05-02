@@ -19,13 +19,15 @@
     "@types/express": "^4.17.13",
     "cac": "^6.7.12",
     "chalk": "^4.1.2",
+    "chokidar": "^3.5.3",
     "express": "^4.18.1",
     "html-minifier-terser": "^7.0.0-alpha.2",
     "jest-haste-map": "^26.6.2",
     "jest-resolve": "^27.5.1",
     "jest-resolve-dependencies": "^27.5.1",
     "jest-worker": "^27.5.1",
-    "terser": "^5.12.1"
+    "terser": "^5.12.1",
+    "ws": "^8.6.0"
   },
   "devDependencies": {
     "@types/chalk": "^2.2.0",
