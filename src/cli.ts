@@ -25,19 +25,19 @@ cli.parse();
 
 async function _build(options) {
   const moduleMap = await createModuleMap(options.entryPoint);
-  const output = await bundle(moduleMap);
-  return output;
+  const { jsBundle, filepath } = await bundle(moduleMap, options);
+  return { jsBundle, filepath };
 }
 
 async function build(options) {
   const start = performance.now();
-  const output = await _build(options);
+  const { jsBundle, filepath } = await _build(options);
 
   const code = options.minify
-    ? await minify(output, { sourceMap: true }).then((res) => res.code)
-    : output;
+    ? await minify(jsBundle, { sourceMap: true }).then((res) => res.code)
+    : jsBundle;
 
-  await fs.writeFile(options.output, code, "utf8");
+  await fs.writeFile(path.resolve(process.cwd(), filepath), code, "utf8");
   const html = await fs.readFile(
     path.resolve(process.cwd(), "index.html"),
     "utf-8"
@@ -55,7 +55,7 @@ async function build(options) {
 }
 
 async function dev(options) {
-  const output = await _build(options);
+  const { jsBundle, filepath } = await _build(options);
   const html = await fs.readFile(
     path.resolve(process.cwd(), "index.html"),
     "utf-8"
@@ -63,10 +63,10 @@ async function dev(options) {
   const bodyRex = /<\/body>/i;
   const injectedHtml = html.replace(
     bodyRex,
-    `<script src="${options.output}">` + "</script>" + "\n</body>"
+    `<script src="${filepath}">` + "</script>" + "\n</body>"
   );
   const fileMap = {};
-  fileMap[options.output.replace(".", "")] = output;
+  fileMap["/" + filepath] = jsBundle;
 
   const app = express();
   app.use((req, res) => {

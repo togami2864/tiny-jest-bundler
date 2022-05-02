@@ -5,7 +5,7 @@ import chalk from "chalk";
 import { Worker } from "jest-worker";
 import { read, write, cacheFileName } from "./cache";
 
-export async function bundle(moduleMap) {
+export async function bundle(moduleMap, options) {
   const wrapModule = (id, code) =>
     `define(${id}, function(module, exports, require) {\n${code}});`;
 
@@ -59,5 +59,6 @@ export async function bundle(moduleMap) {
     "requireModule(0);",
   ].join("\n");
 
-  return jsBundle;
+  const filepath = path.join(options.output, "bundle.js");
+  return { jsBundle, filepath };
 }
