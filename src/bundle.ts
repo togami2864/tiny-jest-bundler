@@ -1,4 +1,5 @@
-import * as fs from "node:fs";
+import * as fs from "node:fs/promises";
+import { existsSync } from "node:fs";
 import * as path from "node:path";
 
 import chalk from "chalk";
@@ -24,8 +25,8 @@ export async function bundle(moduleMap, options) {
     } catch {}
     // @ts-ignore
     const { code } = await worker.transformFile(metadata.code);
-    if (!fs.existsSync(CACHE_DIR)) {
-      fs.mkdirSync(CACHE_DIR, { recursive: true });
+    if (!existsSync(CACHE_DIR)) {
+      await fs.mkdir(CACHE_DIR, { recursive: true });
     }
     await write(filepath, code, false);
     return { code };
@@ -54,11 +55,33 @@ export async function bundle(moduleMap, options) {
   worker.end();
 
   const jsBundle = [
-    fs.readFileSync(path.join(__dirname, "./require.js"), "utf8"),
+    await fs.readFile(path.join(__dirname, "./require.js"), "utf8"),
     ...results,
     "requireModule(0);",
   ].join("\n");
 
-  const filepath = path.join(options.output, "bundle.js");
-  return { jsBundle, filepath };
+  const jsFile = {
+    content: jsBundle,
+    filepath: path.join(options.output, "bundle.js"),
+  };
+  return jsFile;
+}
+
+export async function createHTMLOutput(options, jsFilepath) {
+  const html = await fs.readFile(
+    path.resolve(process.cwd(), "index.html"),
+    "utf-8"
+  );
+  const bodyRex = /<\/body>/i;
+  const injectedHtml = html.replace(
+    bodyRex,
+    `<script src="${jsFilepath}">` + "</script>" + "\n</body>"
+  );
+
+  const htmlFile = {
+    content: injectedHtml,
+    filepath: path.resolve(options.output, "output.html"),
+  };
+
+  return htmlFile;
 }

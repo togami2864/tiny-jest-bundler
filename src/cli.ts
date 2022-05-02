@@ -7,7 +7,7 @@ import { minify } from "terser";
 import express from "express";
 
 import { createModuleMap } from "./moduleMap.js";
-import { bundle } from "./bundle.js";
+import { bundle, createHTMLOutput } from "./bundle.js";
 
 const cli = cac("jest-bundler");
 
@@ -25,29 +25,22 @@ cli.parse();
 
 async function _build(options) {
   const moduleMap = await createModuleMap(options.entryPoint);
-  const { jsBundle, filepath } = await bundle(moduleMap, options);
-  return { jsBundle, filepath };
+  const jsFile = await bundle(moduleMap, options);
+  return jsFile;
 }
 
 async function build(options) {
   const start = performance.now();
-  const { jsBundle, filepath } = await _build(options);
+  const jsFile = await _build(options);
 
   const code = options.minify
-    ? await minify(jsBundle, { sourceMap: true }).then((res) => res.code)
-    : jsBundle;
+    ? await minify(jsFile.content, { sourceMap: true }).then((res) => res.code)
+    : jsFile.content;
 
-  await fs.writeFile(path.resolve(process.cwd(), filepath), code, "utf8");
-  const html = await fs.readFile(
-    path.resolve(process.cwd(), "index.html"),
-    "utf-8"
-  );
-  const bodyRex = /<\/body>/i;
-  const injectedHtml = html.replace(
-    bodyRex,
-    `<script src="${options.output}">` + "</script>" + "\n</body>"
-  );
-  await fs.writeFile("output.html", injectedHtml, "utf-8");
+  await fs.writeFile(jsFile.filepath, code, "utf8");
+
+  const htmlFile = await createHTMLOutput(options, jsFile.filepath);
+  await fs.writeFile(htmlFile.filepath, htmlFile.content, "utf-8");
   const end = performance.now();
   console.log(
     chalk.bold(`jest-bundler compiled in ${end - start} milliseconds.`)
@@ -55,18 +48,14 @@ async function build(options) {
 }
 
 async function dev(options) {
-  const { jsBundle, filepath } = await _build(options);
-  const html = await fs.readFile(
-    path.resolve(process.cwd(), "index.html"),
-    "utf-8"
-  );
-  const bodyRex = /<\/body>/i;
-  const injectedHtml = html.replace(
-    bodyRex,
-    `<script src="${filepath}">` + "</script>" + "\n</body>"
-  );
+  const jsFile = await _build(options);
+  const htmlFile = await createHTMLOutput(options, jsFile.filepath);
+
+  const outputFiles = [jsFile, htmlFile];
   const fileMap = {};
-  fileMap["/" + filepath] = jsBundle;
+  for (const file of outputFiles) {
+    fileMap["/" + file.filepath] = file.content;
+  }
 
   const app = express();
   app.use((req, res) => {
@@ -74,7 +63,7 @@ async function dev(options) {
     if (fileMap[request]) {
       return res.send(fileMap[request]);
     }
-    res.send(injectedHtml);
+    res.send(htmlFile.content);
   });
   app.listen(3000, () => console.log(`server listen on http://localhost:3000`));
 }
