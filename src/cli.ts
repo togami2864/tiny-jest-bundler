@@ -5,8 +5,10 @@ import cac from "cac";
 import { minify } from "terser";
 import express from "express";
 
-import { createModuleMap } from "./moduleMap.js";
-import { bundle, createHTMLOutput } from "./bundle.js";
+import { createModuleMap } from "./moduleMap";
+import { bundle, createHTMLOutput } from "./bundle";
+import { createFileWatcher } from "./watcher";
+import { setupReloadServer } from "./webSocket";
 
 const cli = cac("jest-bundler");
 
@@ -55,6 +57,8 @@ async function dev(options) {
   const jsFile = await _build(options);
   const htmlFile = await createHTMLOutput(options, jsFile.filepath);
 
+  const ws = setupReloadServer();
+
   const outputFiles = [jsFile, htmlFile];
   const fileMap = {};
   for (const file of outputFiles) {
@@ -69,5 +73,10 @@ async function dev(options) {
     }
     res.send(htmlFile.content);
   });
+
   app.listen(3000, () => console.log(`server listen on http://localhost:3000`));
+  createFileWatcher((eventName, path) => {
+    console.log(`Detected file change (${eventName}) reloading!: ${path}`);
+    ws.send({ type: "reload" });
+  });
 }

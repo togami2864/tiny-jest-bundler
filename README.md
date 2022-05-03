@@ -4,7 +4,8 @@
 - [x] cache
 - [ ] sourcemap
 - [x] dev mode
-- [ ] watch mode
+- [x] watch mode
+- [ ] auto reload
 - [ ] Import Maps
 - [ ] hot reload
 

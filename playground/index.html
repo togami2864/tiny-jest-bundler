@@ -5,9 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>sample</title>
+
 </head>
 
 <body>
+    <script type="module" defer>
+        const ws = new WebSocket("ws://localhost:24678")
+        ws.addEventListener("message", ({ data }) => {
+            const msg = JSON.parse(data)
+            if (msg.type === "reload") {
+                location.reload()
+            }
+        })
+    </script>
 </body>
+
 
 </html>

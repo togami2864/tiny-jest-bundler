@@ -1,1 +1,1 @@
-export default "banana " + require("./kiwi");
+export default "banana" + require("./kiwi");
